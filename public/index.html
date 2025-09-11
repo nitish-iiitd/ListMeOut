@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>ListMeOut — Minimal To-Do</title>
 
-    <!-- Bootstrap (optional but nice for spacing/typography) -->
+    <!-- Bootstrap (optional) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -14,13 +14,10 @@
             --line-color: rgba(0, 85, 255, 0.15);
             --margin-color: rgba(255, 0, 0, 0.18);
             --ink: #1c1c1c;
+            --line-step: 44px; /* <<< single source of truth for row + paper line height */
         }
 
-        html, body {
-            height: 100%;
-            background: #f3f5f7;
-        }
-
+        html, body { height: 100%; background: #f3f5f7; }
         body {
             color: var(--ink);
             -webkit-font-smoothing: antialiased;
@@ -28,109 +25,80 @@
             font-family: "Comic Sans MS", "Comic Sans", "Comic Neue", "Segoe UI", system-ui, -apple-system, sans-serif;
         }
 
-        .app-wrap {
-            max-width: 800px;
-            margin: 24px auto;
-            padding: 0 12px;
-        }
+        .app-wrap { max-width: 800px; margin: 24px auto; padding: 0 12px; }
 
         .sheet {
             position: relative;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             overflow: hidden;
+            background: var(--sheet-bg); /* base color only; stripes live on .sheet-inner */
+        }
+
+        /* Put the red margin + stripes on the SAME element as the text to avoid offsets */
+        .sheet-inner {
+            position: relative;
+            padding: 0 16px 0 24px; /* no top/bottom padding so first row sits on first line */
             background:
-                /* horizontal lines */
                     repeating-linear-gradient(
                             to bottom,
-                            var(--sheet-bg) 0px,
-                            var(--sheet-bg) 42px,
-                            var(--line-color) 42px,
-                            var(--line-color) 43px
-                    ),
-                        /* page color */
-                    var(--sheet-bg);
+                            var(--sheet-bg) 0,
+                            var(--sheet-bg) calc(var(--line-step) - 1px),
+                            var(--line-color) calc(var(--line-step) - 1px),
+                            var(--line-color) var(--line-step)
+                    );
+            background-clip: padding-box;
         }
 
-        /* red margin line */
-        .sheet::before {
-            content: "";
-            position: absolute;
-            top: 0; bottom: 0; left: 64px;
-            width: 2px;
-            background: var(--margin-color);
-            pointer-events: none;
-        }
-
-        .sheet-inner {
-            padding: 28px 16px 32px 24px;
-        }
-
-        .title {
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-align: center;
-            margin: 8px 0 16px 0;
-        }
+        .title { font-weight: 700; letter-spacing: 0.5px; text-align: center; margin: 8px 0 16px; }
 
         .controls {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
+            display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 8px;
         }
 
         .todo-row {
             display: grid;
-            grid-template-columns: 36px 1fr;
+            grid-template-columns: 40px 1fr;
             align-items: center;
             gap: 12px;
-            min-height: 44px; /* aligns with the paper lines */
-            padding: 6px 8px 2px 8px;
-            position: relative;
+            height: var(--line-step);           /* <<< exact match with stripe step */
+            padding: 0 8px;                     /* horizontal breathing room only */
         }
 
         .todo-row .form-check-input {
             width: 22px; height: 22px;
-            margin-left: 16px;
+            margin-left: 0px;
             cursor: pointer;
+            justify-self: center;
         }
 
         .todo-input {
             background: transparent;
             border: none;
             outline: none;
-            padding: 6px 6px 4px 6px;
-            font-size: 1.05rem;
-            line-height: 1.4;
             width: 100%;
+            font-size: 1.05rem;
+            height: calc(var(--line-step) - 2px);   /* <<< visually centers text on the line */
+            line-height: calc(var(--line-step) - 2px);
+            padding: 0 6px;
             color: var(--ink);
         }
-
-        .todo-input::placeholder { color: rgba(0,0,0,0.35); }
-
+        .todo-input::placeholder { color: rgba(0,0,0,0.35); background-color: transparent;}
+        .placeholder { color: rgba(0,0,0,0.35); background-color: transparent;}
         .todo-row:hover .todo-input { background: rgba(0,0,0,0.02); border-radius: 8px; }
 
-        .fade-out {
-            opacity: 0.15;
-            transform: translateX(6px);
-            transition: opacity 220ms ease, transform 220ms ease;
-        }
+        .fade-out { opacity: 0.15; transform: translateX(6px); transition: opacity 220ms ease, transform 220ms ease; }
 
-        .divider {
-            height: 1px; background: rgba(0,0,0,0.06); margin: 8px 0 12px;
-        }
+        .divider { height: 1px; background: rgba(0,0,0,0.08); }
 
-        /* Done list styles */
-        .done-wrap { display: none; }
+        .done-wrap { display: none; background: rgba(255,255,255,0.5); }
         .done-item {
             display: grid;
             grid-template-columns: 36px 1fr;
             align-items: center;
             gap: 12px;
-            padding: 6px 8px 2px 8px;
+            height: var(--line-step);
+            padding: 0 8px;
             opacity: 0.6;
             text-decoration: line-through;
         }
@@ -144,17 +112,13 @@
             font-size: 0.95rem;
         }
 
-        .brand {
-            text-align: center;
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-top: 8px;
-        }
+        .brand { text-align: center; font-size: 0.9rem; opacity: 0.8; margin-top: 8px; }
 
         @media (max-width: 520px) {
-            .sheet::before { left: 48px; }
             .todo-row .form-check-input { margin-left: 8px; }
-            .sheet-inner { padding-left: 16px; padding-right: 12px; }
+            .sheet-inner::before { left: 48px; }
+            .sheet-inner { padding-left: 16px; }
+            .todo-row { grid-template-columns: 32px 1fr; }
         }
     </style>
 </head>
@@ -171,9 +135,7 @@
     <div class="sheet">
         <div class="sheet-inner">
             <div id="todoList" aria-label="Active to-dos"></div>
-
             <div class="divider"></div>
-
             <div id="doneWrap" class="done-wrap" aria-label="Completed to-dos">
                 <div id="doneList"></div>
             </div>
@@ -184,32 +146,17 @@
 </div>
 
 <script>
-    // ---- Storage & State ----
     const STORAGE_KEY = "listmeout_items_v1";
 
     function loadItems() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            const arr = raw ? JSON.parse(raw) : [];
-            return Array.isArray(arr) ? arr : [];
-        } catch {
-            return [];
-        }
+        try { const raw = localStorage.getItem(STORAGE_KEY); const arr = raw ? JSON.parse(raw) : []; return Array.isArray(arr) ? arr : []; }
+        catch { return []; }
     }
-
-    function saveItems(items) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    }
-
-    // Generate a reasonably unique id
-    function uid() {
-        if (crypto && crypto.randomUUID) return crypto.randomUUID();
-        return "id_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-    }
+    function saveItems(items) { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
+    function uid() { return (crypto && crypto.randomUUID) ? crypto.randomUUID() : ("id_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8)); }
 
     let items = loadItems();
 
-    // ---- Rendering ----
     const todoListEl = document.getElementById("todoList");
     const doneWrapEl = document.getElementById("doneWrap");
     const doneListEl = document.getElementById("doneList");
@@ -218,11 +165,9 @@
     const clearDoneBtn = document.getElementById("clearDoneBtn");
 
     function render() {
-        // Separate active vs done
         const active = items.filter(i => !i.done).sort((a,b) => (a.order ?? 0) - (b.order ?? 0));
         const done = items.filter(i => i.done).sort((a,b) => (b.doneAt ?? 0) - (a.doneAt ?? 0));
 
-        // Build active list
         todoListEl.innerHTML = "";
         active.forEach((it) => {
             const row = document.createElement("div");
@@ -243,11 +188,8 @@
             input.addEventListener("input", (e) => {
                 it.text = e.target.value;
                 saveItems(items);
-                // Keep at least 5 empty lines available after typing
                 ensurePlaceholders();
             });
-
-            // Save on every keystroke already handled; also blur save safety
             input.addEventListener("blur", () => saveItems(items));
 
             row.appendChild(cb);
@@ -255,10 +197,8 @@
             todoListEl.appendChild(row);
         });
 
-        // Ensure at least 5 empty lines (placeholders)
-        const newPlaceholders = ensurePlaceholders();
+        ensurePlaceholders();
 
-        // Build done list
         doneListEl.innerHTML = "";
         done.forEach((it) => {
             const row = document.createElement("div");
@@ -269,11 +209,8 @@
             cb.type = "checkbox";
             cb.className = "form-check-input";
             cb.checked = true;
-            cb.addEventListener("change", () => { // allow uncheck to move back
-                it.done = false;
-                it.doneAt = null;
-                saveItems(items);
-                render();
+            cb.addEventListener("change", () => {
+                it.done = false; it.doneAt = null; saveItems(items); render();
             });
 
             const text = document.createElement("div");
@@ -284,21 +221,13 @@
             doneListEl.appendChild(row);
         });
 
-        // Focus: first empty input on initial render or when there are placeholders
         const firstEmpty = todoListEl.querySelector(".todo-input[value='']");
         if (firstEmpty) firstEmpty.focus();
-
-        return newPlaceholders;
     }
 
     function ensurePlaceholders() {
-        // Count current empty inputs among active rows
-        const currentEmpty = [...todoListEl.querySelectorAll(".todo-input")]
-            .filter(inp => !inp.value.trim()).length;
-
+        const currentEmpty = [...todoListEl.querySelectorAll(".todo-input")].filter(inp => !inp.value.trim()).length;
         let placeholdersNeeded = Math.max(0, 5 - currentEmpty);
-        let added = 0;
-
         while (placeholdersNeeded-- > 0) {
             const row = document.createElement("div");
             row.className = "todo-row placeholder";
@@ -306,62 +235,40 @@
             const cb = document.createElement("input");
             cb.type = "checkbox";
             cb.className = "form-check-input";
-            cb.disabled = true; // no checking on empty line
+            cb.disabled = true;
 
             const input = document.createElement("input");
             input.type = "text";
             input.className = "todo-input";
             input.placeholder = "Type to add…";
-
-            // On first keystroke, convert placeholder to a real item
             input.addEventListener("input", (e) => {
-                if (!e.target.value.trim()) return; // ignore pure blanks
-                const newItem = {
-                    id: uid(),
-                    text: e.target.value,
-                    done: false,
-                    order: Date.now()
-                };
+                if (!e.target.value.trim()) return;
+                const newItem = { id: uid(), text: e.target.value, done: false, order: Date.now() };
                 items.push(newItem);
                 saveItems(items);
-
-                // Re-render and place cursor at end of the same item
                 render();
-                const justAdded = [...todoListEl.querySelectorAll(".todo-row")]
-                    .find(div => div.dataset.id === newItem.id);
+                const justAdded = [...todoListEl.querySelectorAll(".todo-row")].find(div => div.dataset.id === newItem.id);
                 if (justAdded) {
                     const inp = justAdded.querySelector(".todo-input");
-                    if (inp) {
-                        const len = inp.value.length;
-                        inp.focus();
-                        inp.setSelectionRange(len, len);
-                    }
+                    if (inp) { const len = inp.value.length; inp.focus(); inp.setSelectionRange(len, len); }
                 }
             });
 
             row.appendChild(cb);
             row.appendChild(input);
             todoListEl.appendChild(row);
-            added++;
         }
-        return added;
     }
 
     function handleCheck(id, rowEl) {
-        // Visual fade, then mark as done and re-render
         rowEl.classList.add("fade-out");
         setTimeout(() => {
             const it = items.find(x => x.id === id);
-            if (it) {
-                it.done = true;
-                it.doneAt = Date.now();
-                saveItems(items);
-            }
+            if (it) { it.done = true; it.doneAt = Date.now(); saveItems(items); }
             render();
         }, 230);
     }
 
-    // ---- Controls ----
     let showingDone = false;
     toggleDoneBtn.addEventListener("click", () => {
         showingDone = !showingDone;
@@ -383,19 +290,11 @@
         const blob = new Blob([data], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        a.href = url;
-        a.download = "listmeout_export.json";
-        a.click();
+        a.href = url; a.download = "listmeout_export.json"; a.click();
         URL.revokeObjectURL(url);
     });
 
-    // ---- Init ----
-    // On first visit, ensure we start with 5 lines
-    (function init() {
-        const newPlaceholders = render();
-        // Cursor rule: when the website is opened, the cursor is at the next empty field
-        // render() already focuses the first empty input
-    })();
+    (function init() { render(); })();
 </script>
 </body>
 </html>
