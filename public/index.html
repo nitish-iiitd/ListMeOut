@@ -98,7 +98,11 @@
         .placeholder { color: rgba(0,0,0,0.35); background-color: transparent;}
         .todo-row:hover .todo-input { background: rgba(0,0,0,0.02); border-radius: 8px; }
 
-        .fade-out { opacity: 0.15; transform: translateX(6px); transition: opacity 220ms ease, transform 220ms ease; }
+        .fade-out {
+            opacity: 0.15;
+            transform: translateX(6px);
+            transition: opacity 800ms ease, transform 800ms ease;
+        }
 
         .divider { height: 1px; background: rgba(0,0,0,0.08); }
 
@@ -123,6 +127,19 @@
             font-size: 0.95rem;
         }
 
+        /* Keep our custom background on all button states */
+        .btn-lite,
+        .btn-lite:hover,
+        .btn-lite:active,
+        .btn-lite:focus,
+        .btn-lite:focus-visible {
+            background: #ffffffcc !important;
+            border: 1px dashed rgba(0,0,0,0.2) !important;
+            color: inherit !important;
+            box-shadow: none !important;
+        }
+
+
         .brand { text-align: center; font-size: 0.9rem; opacity: 0.8; margin-top: 8px; }
 
         @media (max-width: 520px) {
@@ -138,9 +155,9 @@
     <h1 class="title">ListMeOut</h1>
 
     <div class="controls">
-        <button id="toggleDoneBtn" class="btn btn-lite" type="button">Show Done</button>
-        <button id="exportBtn" class="btn btn-lite" type="button" title="Download your list as JSON">Export</button>
-        <button id="clearDoneBtn" class="btn btn-lite" type="button" title="Remove all done items">Clear Done</button>
+        <button id="toggleDoneBtn" class="btn-lite" type="button">Show Done</button>
+        <button id="exportBtn" class="btn-lite" type="button" title="Download your list as JSON">Export</button>
+        <button id="clearDoneBtn" class="btn-lite" type="button" title="Remove all done items">Clear Done</button>
     </div>
 
     <div class="sheet">
@@ -277,7 +294,7 @@
             const it = items.find(x => x.id === id);
             if (it) { it.done = true; it.doneAt = Date.now(); saveItems(items); }
             render();
-        }, 230);
+        }, 800);
     }
 
     let showingDone = false;
