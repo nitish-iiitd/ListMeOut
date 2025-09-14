@@ -62,6 +62,14 @@
 
         .title { font-weight: 700; letter-spacing: 0.5px; text-align: center; margin: 8px 0 16px; }
 
+        .subtitle{
+            margin: -6px 0 12px;
+            text-align:center;
+            font-size:.95rem;
+            color:#6b7280;  /* muted */
+            opacity:.9;
+        }
+
         .controls {
             display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 8px;
         }
@@ -209,6 +217,7 @@
 <body>
 <div class="app-wrap">
     <h1 class="title">ListMeOut</h1>
+    <p class="subtitle">a minimal to-do app</p>
 
     <div class="controls">
         <button id="toggleDoneBtn" class="btn-lite" type="button">Show Done</button>
@@ -226,6 +235,7 @@
         </div>
     </div>
 
+    <br>
     <p class="brand">
         Built with ❤️ by
         <a href="https://nitishsrivastava.dev" target="_blank" rel="noopener">Nitish</a>
