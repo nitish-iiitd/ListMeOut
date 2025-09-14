@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+    <!-- Rounded outer -->
+    <rect x="64" y="64" width="896" height="896" rx="220" fill="#ffffff"/>
+    <!-- Paper card -->
+    <rect x="144" y="144" width="736" height="736" rx="120" fill="#fffdfa" stroke="#2563eb" stroke-width="10"/>
+    <!-- Blue ruling -->
+    <g stroke="rgba(63,131,248,0.28)" stroke-width="6">
+        <line x1="144" y1="280" x2="880" y2="280"/>
+        <line x1="144" y1="360" x2="880" y2="360"/>
+        <line x1="144" y1="440" x2="880" y2="440"/>
+        <line x1="144" y1="520" x2="880" y2="520"/>
+        <line x1="144" y1="600" x2="880" y2="600"/>
+        <line x1="144" y1="680" x2="880" y2="680"/>
+        <line x1="144" y1="760" x2="880" y2="760"/>
+    </g>
+    <!-- Red margin line -->
+    <line x1="280" y1="144" x2="280" y2="880" stroke="rgba(239,68,68,0.6)" stroke-width="10"/>
+    <!-- Checkmark -->
+    <path d="M350 560 l90 90 230-230" fill="none" stroke="#16a34a" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- L monogram (optional) -->
+    <!--    <text x="330" y="440" font-size="200" font-family="Comic Sans MS, Comic Sans, 'Comic Neue', sans-serif" fill="#1f2937">L</text>-->
+</svg>

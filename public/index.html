@@ -147,7 +147,64 @@
             .sheet-inner { padding-left: 16px; }
             .todo-row { grid-template-columns: 32px 1fr; }
         }
+
+
+        /* === Numbering for active TODO rows (CSS-only) === */
+        #todoList { counter-reset: todo; }
+
+        /* Positioning hook */
+        #todoList .todo-row:not(.placeholder) { position: relative; }
+
+        /* The number badge (left edge of the text column) */
+        #todoList .todo-row:not(.placeholder)::before {
+            counter-increment: todo;
+            content: counter(todo) ".";
+            position: absolute;
+            /* place just right of the red line: 40px checkbox col + 8px row padding */
+            left: calc(40px + 8px);
+            top: 0;
+            height: var(--line-step);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 2.2ch;                  /* room for 2-digit counts */
+            font-size: 0.95rem;
+            color: rgba(0,0,0,0.45);       /* subtle so it doesn’t overpower text */
+            pointer-events: none;
+        }
+
+        /* Add left padding so text doesn’t overlap the number */
+        #todoList .todo-row:not(.placeholder) .todo-input {
+            padding-left: calc(2.4ch + 12px);
+        }
+
+        /* Mobile: checkbox column is 32px, so shift numbers accordingly */
+        @media (max-width: 520px) {
+            #todoList .todo-row:not(.placeholder)::before {
+                left: calc(32px + 8px);
+            }
+        }
+
+
     </style>
+
+    <!-- PWA bits -->
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
+
+    <!-- Icons for browsers & iOS home screen -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
+
+    <!-- (optional but recommended) prompt Android “Install app” eligibility -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+
+
 </head>
 <body>
 <div class="app-wrap">
@@ -155,7 +212,7 @@
 
     <div class="controls">
         <button id="toggleDoneBtn" class="btn-lite" type="button">Show Done</button>
-        <button id="exportBtn" class="btn-lite" type="button" title="Download your list as JSON">Export</button>
+        <button id="exportBtn" class="btn-lite" type="button" title="Download your list as JSON" style="display: none">Export</button>
         <button id="clearDoneBtn" class="btn-lite" type="button" title="Remove all done items">Clear Done</button>
     </div>
 
